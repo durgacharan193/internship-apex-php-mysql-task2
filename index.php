@@ -1,20 +1,22 @@
 <?php
 session_start();
-if(!isset($_SESSION["user_id"]))
-{
-    header("Location:login.php");exit();
+if (!isset($_SESSION["username"])) {
+    header("Location: login.php");
+    exit();
 }
-include 'db.php';
+include("db.php");
+$result = mysqli_query($conn, "SELECT * FROM blog ORDER BY created_at DESC");
 ?>
-<h2>All Posts</h2>
-<a href="create.php">+ New Post</a>| <a href="logout.php">Logout</a><br><br>
-<?php
-$result=$conn->query("SELECT * FROM posts ORDER BY created_at DESC");
-while($row=$result->fetch_assoc())
-{
-    echo "<h3>". htmlspecialchars($row['title'])."</h3>";
-    echo "<p>". nl2br(htmlspecialchars($row['content']))."</p>";
-    echo "<a href='edit.php?id={$row['id']}'>Edit</a> | ";
-    echo "<a href='delete.php?id={$row['id']}'>Delete</a><hr>"; 
-}
-?>
+
+<h2>Welcome <?= htmlspecialchars($_SESSION["username"]) ?> | <a href="logout.php">Logout</a> | <a href="create.php">New Post</a></h2>
+
+<?php while ($row = mysqli_fetch_assoc($result)): ?>
+<div>
+    <h3><?= htmlspecialchars($row['title']) ?></h3>
+    <p><?= nl2br(htmlspecialchars($row['content'])) ?></p>
+    <small><?= $row['created_at'] ?></small><br>
+    <a href="update.php?id=<?= $row['id'] ?>">Edit</a>
+    <a href="delete.php?id=<?= $row['id'] ?>" onclick="return confirm('Delete this post?')">Delete</a>
+</div>
+<hr>
+<?php endwhile; ?>
